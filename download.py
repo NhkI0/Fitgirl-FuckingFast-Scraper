@@ -1,9 +1,12 @@
 import re
 import requests
+import cloudscraper
 from bs4 import BeautifulSoup
 from pathlib import Path
 import os
 from tqdm import tqdm
+
+scraper = cloudscraper.create_scraper()
 
 
 def extract_download_link(script_content: str) -> str | None:
@@ -17,7 +20,7 @@ def extract_download_link(script_content: str) -> str | None:
 
 
 def get_download_link_from_page(page_url: str) -> str | None:
-    response = requests.get(page_url)
+    response = scraper.get(page_url)
     soup = BeautifulSoup(response.text, 'html.parser')
 
     for script in soup.find_all('script'):
@@ -38,7 +41,7 @@ def download_with_requests(page_url: str, download_path: str) -> bool:
         download_path (str): Local path where the file should be saved
     """
     try:
-        response = requests.get(page_url, stream=True)
+        response = scraper.get(page_url, stream=True)
         response.raise_for_status()
 
         total_size = int(response.headers.get('content-length', 0))
